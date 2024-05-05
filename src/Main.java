@@ -1,6 +1,7 @@
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,17 +12,18 @@ public class Main {
 }
 
 class LiftController implements Runnable {
+    private boolean flagOfWork;
     private Lift lift1, lift2, lift3;
     private Queue<Integer> requests;
 
     public void run() {
-        this.distributeTasks();
+        while (flagOfWork){
+            this.distributeTasks();
+        }
     }
 
-    public synchronized void distributeTasks() {
+    public void distributeTasks() {
         while (!requests.isEmpty()) {
-            System.out.println(requests.size());
-            System.out.println("lifti " + Thread.currentThread());
             System.out.println("Текущее состояние: " + lift1.getCurrentFloor() + " " + lift2.getCurrentFloor() + " " + lift3.getCurrentFloor());
             System.out.println("Поступил запрос с " + requests.peek() + " этажа");
             int minDistance = Math.min(lift1.getDistance(requests.peek()), Math.min(lift2.getDistance(requests.peek()), lift3.getDistance(requests.peek())));
@@ -43,19 +45,28 @@ class LiftController implements Runnable {
                 System.out.println("Отвезли пользователя на " + lift3.getCurrentFloor() + " этаж");
             }
             System.out.println();
-            requests.remove();
+            requests.poll();
+        }
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e){
+            System.out.println("Lift controller is broken!");
         }
     }
 
-    public synchronized void addRequest(int task) {
+    public void addRequest(int task) {
         requests.add(task);
     }
-
+    public void switchOffThread(){
+        flagOfWork = false;
+    }
     LiftController() {
         lift1 = new Lift();
         lift2 = new Lift();
         lift3 = new Lift();
-        requests = new LinkedList<>();
+        flagOfWork = true;
+        requests = new ConcurrentLinkedQueue<>();
     }
 
 }
@@ -82,34 +93,26 @@ class Lift {
 
 
     public void goUp() {
-        try {
-            Thread.sleep(1000);
-            currentFloor++;
-        } catch (InterruptedException e) {
-            System.out.println("Lift is broken!");
-        }
-
+        currentFloor++;
     }
 
     public void goDown() {
-        try {
-            Thread.sleep(1000);
-            currentFloor--;
-        } catch (InterruptedException e) {
-            System.out.println("Lift is broken!");
-        }
+        currentFloor--;
     }
 
     public void goTo(int goalFloor) {
         while (this.currentFloor > goalFloor) {
             goDown();
-            currentFloor = goalFloor;
         }
         while (this.currentFloor < goalFloor) {
             goUp();
-            currentFloor = goalFloor;
         }
-
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e){
+            System.out.println("Lift is broken!");
+        }
     }
 
     Lift() {
@@ -123,17 +126,19 @@ class TaskGenerator implements Runnable {
 
     public void run() {
         LiftController controller = new LiftController();
+        Thread thread = new Thread(controller);
+        thread.start();
         for (int i = 0; i < numOfTasks; ++i) {
-            System.out.println("Taski " + Thread.currentThread());
             try {
                 controller.addRequest(generateTask());
                 Thread.sleep(1000);
-                new Thread(controller).start();
+
             } catch (InterruptedException e) {
                 System.out.println("Task was not generated!");
             }
 
         }
+        controller.switchOffThread();
     }
 
     public static int generateTask() {
