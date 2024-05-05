@@ -5,11 +5,12 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) {
         TaskGenerator taskGenerator = new TaskGenerator();
-        taskGenerator.start();
+        Thread thread = new Thread(taskGenerator);
+        thread.start();
     }
 }
 
-class LiftController extends Thread {
+class LiftController implements Runnable {
     private Lift lift1, lift2, lift3;
     private Queue<Integer> requests;
 
@@ -19,6 +20,8 @@ class LiftController extends Thread {
 
     public synchronized void distributeTasks() {
         while (!requests.isEmpty()) {
+            System.out.println(requests.size());
+            System.out.println("lifti " + Thread.currentThread());
             System.out.println("Текущее состояние: " + lift1.getCurrentFloor() + " " + lift2.getCurrentFloor() + " " + lift3.getCurrentFloor());
             System.out.println("Поступил запрос с " + requests.peek() + " этажа");
             int minDistance = Math.min(lift1.getDistance(requests.peek()), Math.min(lift2.getDistance(requests.peek()), lift3.getDistance(requests.peek())));
@@ -115,17 +118,17 @@ class Lift {
 
 }
 
-class TaskGenerator extends Thread {
+class TaskGenerator implements Runnable {
     private static final int numOfTasks = 10;
 
     public void run() {
         LiftController controller = new LiftController();
-        controller.start();
         for (int i = 0; i < numOfTasks; ++i) {
+            System.out.println("Taski " + Thread.currentThread());
             try {
                 controller.addRequest(generateTask());
                 Thread.sleep(1000);
-                controller.distributeTasks();
+                new Thread(controller).start();
             } catch (InterruptedException e) {
                 System.out.println("Task was not generated!");
             }
