@@ -10,8 +10,9 @@ public class LiftController implements Runnable {
         while (flagOfWork){
             this.distributeTasks();
         }
+        this.distributeTasks();
     }
-
+    /** Распределяет все запросы среди лифтов */
     public void distributeTasks() {
         while (!requests.isEmpty()) {
             System.out.println("Текущее состояние: " + lift1.getCurrentFloor() + " " + lift2.getCurrentFloor() + " " + lift3.getCurrentFloor());
@@ -44,10 +45,15 @@ public class LiftController implements Runnable {
             System.out.println("Lift controller is broken!");
         }
     }
+    /** Добавляет запрос в конец очереди запросов */
 
     public void addRequest(int task) {
         requests.add(task);
     }
+
+    /**
+     * Заканчивает поток
+     */
     public void switchOffThread(){
         flagOfWork = false;
     }

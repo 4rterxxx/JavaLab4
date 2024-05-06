@@ -1,6 +1,9 @@
 import java.util.Random;
 
 public class TaskGenerator implements Runnable {
+    /**
+     * Колличество вызовов лифта
+     */
     private static final int numOfTasks = 10;
 
     public void run() {
@@ -20,11 +23,18 @@ public class TaskGenerator implements Runnable {
         controller.switchOffThread();
     }
 
+    /**
+     * Иммитирует вызов лифта на определенном этаже
+     */
     public static int generateTask() {
         Random r = new Random();
         return r.nextInt(Lift.getNumOfFloors() + 1);
     }
 
+    /**
+     * Иммитирует случайное нажатие кнопки лифта
+     * Возвращает случайное число не равное переданному параметру
+     */
     public static int generateTask(int exception) {
         Random r = new Random();
         int res = r.nextInt(Lift.getNumOfFloors() + 1);

@@ -1,4 +1,7 @@
 public class Lift {
+    /**
+     * Колличество этажей в доме
+     */
     private static final int numOfFloors = 20;
     private int currentFloor;
 
@@ -6,6 +9,9 @@ public class Lift {
         return numOfFloors;
     }
 
+    /**
+     * Возвращает колличество этажей между лифтом и goalFloor
+     */
     public int getDistance(int goalFloor) {
         return Math.abs(goalFloor - currentFloor);
     }
