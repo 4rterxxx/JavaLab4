@@ -7,12 +7,15 @@ public class LiftController implements Runnable {
     private Queue<Integer> requests;
 
     public void run() {
-        while (flagOfWork){
+        while (flagOfWork) {
             this.distributeTasks();
         }
         this.distributeTasks();
     }
-    /** Распределяет все запросы среди лифтов */
+
+    /**
+     * Распределяет все запросы среди лифтов
+     */
     public void distributeTasks() {
         while (!requests.isEmpty()) {
             System.out.println("Текущее состояние: " + lift1.getCurrentFloor() + " " + lift2.getCurrentFloor() + " " + lift3.getCurrentFloor());
@@ -40,12 +43,14 @@ public class LiftController implements Runnable {
         }
         try {
             Thread.sleep(1000);
-        }
-        catch (InterruptedException e){
+        } catch (InterruptedException e) {
             System.out.println("Lift controller is broken!");
         }
     }
-    /** Добавляет запрос в конец очереди запросов */
+
+    /**
+     * Добавляет запрос в конец очереди запросов
+     */
 
     public void addRequest(int task) {
         requests.add(task);
@@ -54,9 +59,10 @@ public class LiftController implements Runnable {
     /**
      * Заканчивает поток
      */
-    public void switchOffThread(){
+    public void switchOffThread() {
         flagOfWork = false;
     }
+
     LiftController() {
         lift1 = new Lift();
         lift2 = new Lift();
